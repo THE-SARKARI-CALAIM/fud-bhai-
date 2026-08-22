@@ -1,0 +1,8 @@
+*.db
+*.log
+*.apk
+__pycache__/
+*.pyc
+.env
+temp_*.apk
+.fud_*.apk

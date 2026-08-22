@@ -1,0 +1,21 @@
+services:
+  - type: worker
+    name: devils-will-rise-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: GROUP_ID
+        sync: false
+      - key: GROUP_LINK
+        sync: false
+      - key: PAYMENT_UPI
+        sync: false
+      - key: SUPPORT_USERNAME
+        sync: false
+      - key: BOT_USERNAME
+        sync: false
