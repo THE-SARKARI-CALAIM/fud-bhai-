@@ -1,25 +1,19 @@
 FROM python:3.14-slim
 
-# Install system deps + Java (default-jdk works on trixie)
+# System deps + Java + Ruby (for gem install)
 RUN apt-get update && apt-get install -y \
     default-jdk \
     wget \
     unzip \
     git \
     curl \
-    gnupg \
+    ruby \
+    ruby-dev \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Metasploit Framework via direct .deb (latest stable)
-RUN wget https://github.com/rapid7/metasploit-framework/releases/download/6.4.18/metasploit-framework_6.4.18_linux_amd64.deb && \
-    dpkg -i metasploit-framework_6.4.18_linux_amd64.deb 2>/dev/null || true && \
-    apt-get install -f -y && \
-    rm metasploit-framework_6.4.18_linux_amd64.deb
-
-# If direct .deb fails, fallback to gem install (lightweight)
-RUN apt-get install -y ruby ruby-dev build-essential && \
-    gem install msfvenom && \
-    apt-get remove -y build-essential && apt-get autoremove -y
+# Install msfvenom using Ruby gem (lightweight, no apt repo issues)
+RUN gem install msfvenom
 
 # Python deps
 COPY requirements.txt .
