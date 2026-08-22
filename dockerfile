@@ -1,6 +1,5 @@
 FROM python:3.14-slim
 
-# System deps + Java (default-jdk works on trixie)
 RUN apt-get update && apt-get install -y \
     default-jdk \
     wget \
@@ -9,17 +8,15 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Metasploit (includes msfvenom) – official .deb from GitHub
-RUN wget https://github.com/rapid7/metasploit-framework/releases/download/6.4.18/metasploit-framework_6.4.18_linux_amd64.deb && \
-    dpkg -i metasploit-framework_6.4.18_linux_amd64.deb || true && \
-    apt-get install -f -y && \
-    rm metasploit-framework_6.4.18_linux_amd64.deb
+# Install Metasploit Framework using official installer script
+RUN curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \
+    chmod 755 msfinstall && \
+    ./msfinstall && \
+    rm msfinstall
 
-# Python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Bot code
 COPY . /app
 WORKDIR /app
 
