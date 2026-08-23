@@ -1,19 +1,18 @@
-FROM python:3.12-slim
+FROM python:3.14-slim
 
-# System deps + Java + Ruby (for gem install)
+# System deps + Java + Metasploit (msfvenom)
 RUN apt-get update && apt-get install -y \
-    default-jdk \
+    openjdk-17-jdk \
     wget \
     unzip \
     git \
     curl \
-    ruby \
-    ruby-dev \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install msfvenom using Ruby gem (lightweight, no apt repo issues)
-RUN gem install msfvenom
+# Install Metasploit Framework (includes msfvenom)
+RUN curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \
+    chmod 755 msfinstall && \
+    ./msfinstall
 
 # Python deps
 COPY requirements.txt .
@@ -25,4 +24,4 @@ WORKDIR /app
 
 EXPOSE 8080
 
-CMD ["python", "app.py"]
+CMD ["python", "bot.py"]
