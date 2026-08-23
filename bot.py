@@ -25,10 +25,14 @@ async def process_apk_fud(input_path, output_path):
             stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await proc.communicate()
+        out=stdout.decode()+stderr.decode()
+        logger.info(f"FUD out: {out[:500]}")
         if proc.returncode != 0:
-            logger.error(f"FUD build failed: {stderr.decode()}")
+            logger.error(f"FUD build failed: {out[:1000]}")
             return False
-        return os.path.exists(output_path)
+        ok=os.path.exists(output_path)
+        logger.info(f"FUD exists {ok} {output_path}")
+        return ok
     except Exception as e:
         logger.error(f"FUD process error: {e}")
         return False
