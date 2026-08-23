@@ -10,6 +10,8 @@ from telegram.ext import (
 import subprocess
 import tempfile
 import shutil
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 # ========== FUD PROCESSING ==========
 FUD_SCRIPT = "fud.py"
@@ -1095,7 +1097,16 @@ async def post_init(application):
             pass
     await application.bot.set_my_commands(uc)
 
+def _health():
+    port = int(os.getenv("PORT", "10000"))
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self): self.send_response(200); self.end_headers(); self.wfile.write(b"OK")
+        def log_message(self, *a, **k): pass
+    try: HTTPServer(("0.0.0.0", port), H).serve_forever()
+    except Exception as e: logger.error(f"health server fail: {e}")
+
 def main():
+    threading.Thread(target=_health, daemon=True).start()
     app = ApplicationBuilder().token(BOT_TOKEN).post_init(post_init).build()
 
     app.add_handler(CommandHandler("start", cmd_start))
