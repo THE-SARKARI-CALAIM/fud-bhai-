@@ -1,22 +1,23 @@
 FROM python:3.14-slim
 
-# System deps + Java (openjdk-21) + tools
+# System deps + Java 21
 RUN apt-get update && apt-get install -y \
     openjdk-21-jdk \
     wget \
-    unzip \
-    git \
     curl \
+    git \
+    unzip \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Metasploit Framework (includes msfvenom)
-# Using the official deb package from Rapid7
-RUN wget https://github.com/rapid7/metasploit-framework/releases/download/6.4.18/metasploit-framework_6.4.18_linux_amd64.deb && \
-    dpkg -i metasploit-framework_6.4.18_linux_amd64.deb || true && \
-    apt-get install -f -y && \
-    rm metasploit-framework_6.4.18_linux_amd64.deb
+# Install Metasploit Framework (official installer)
+# This script automatically adds repo and installs latest msfvenom
+RUN curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && \
+    chmod 755 msfinstall && \
+    ./msfinstall && \
+    rm msfinstall
 
-# Python deps
+# Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -26,5 +27,4 @@ WORKDIR /app
 
 EXPOSE 8080
 
-# Run bot with increased timeouts (we'll handle in code)
 CMD ["python", "bot.py"]
