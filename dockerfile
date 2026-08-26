@@ -1,8 +1,8 @@
 FROM python:3.12-slim
 
-# JDK + tools
+# JDK + tools (default-jdk picks whatever is available)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openjdk-17-jdk-headless \
+    default-jdk-headless \
     wget \
     unzip \
     && rm -rf /var/lib/apt/lists/*
@@ -15,8 +15,6 @@ RUN wget -q https://github.com/rapid7/metasploit-framework/releases/download/v6.
 RUN wget -q https://github.com/iBotPeaches/Apktool/releases/download/v2.10.0/apktool_2.10.0.jar -O /usr/local/bin/apktool.jar && \
     printf '#!/bin/sh\njava -jar /usr/local/bin/apktool.jar "$@"\n' > /usr/local/bin/apktool && \
     chmod +x /usr/local/bin/apktool || echo "apktool setup attempted"
-
-RUN java -version 2>&1 || echo "java not found"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
