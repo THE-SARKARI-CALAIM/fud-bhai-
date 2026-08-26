@@ -1,8 +1,8 @@
-FROM python:3.13-slim
+FROM python:3.12-slim
 
 # JDK + tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    default-jdk-headless \
+    openjdk-17-jdk-headless \
     wget \
     unzip \
     && rm -rf /var/lib/apt/lists/*
@@ -17,7 +17,6 @@ RUN wget -q https://github.com/iBotPeaches/Apktool/releases/download/v2.10.0/apk
     chmod +x /usr/local/bin/apktool || echo "apktool setup attempted"
 
 RUN java -version 2>&1 || echo "java not found"
-RUN /usr/local/bin/msfvenom --version 2>&1 || echo "msfvenom check done"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
