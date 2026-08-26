@@ -18,19 +18,25 @@ FUD_SCRIPT = "fud.py"
 
 async def process_apk_fud(input_path, output_path):
     try:
-        cmd = f"python {FUD_SCRIPT} {input_path} {output_path}"
+        import sys as _sys
+        cmd = f"\"{_sys.executable}\" {FUD_SCRIPT} {input_path} {output_path}"
         proc = await asyncio.create_subprocess_shell(
             cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        stdout, stderr = await proc.communicate()
-        out=stdout.decode()+stderr.decode()
-        logger.info(f"FUD out: {out[:500]}")
-        if proc.returncode != 0:
-            logger.error(f"FUD build failed: {out[:1000]}")
+        try:
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=300)
+        except asyncio.TimeoutError:
+            proc.kill()
+            logger.error("FUD timeout 300s")
             return False
-        ok=os.path.exists(output_path)
+        out=stdout.decode(errors='ignore')+stderr.decode(errors='ignore')
+        logger.info(f"FUD out: {out[:1000]}")
+        if proc.returncode != 0:
+            logger.error(f"FUD build failed rc={proc.returncode}: {out[:1000]}")
+            return False
+        ok=os.path.exists(output_path) and os.path.getsize(output_path)>0
         logger.info(f"FUD exists {ok} {output_path}")
         return ok
     except Exception as e:

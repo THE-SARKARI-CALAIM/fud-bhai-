@@ -1,9 +1,11 @@
 services:
-  - type: worker
+  - type: web
     name: devils-will-rise-bot
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
+    env: docker
+    dockerfilePath: ./dockerfile
+    plan: starter
+    healthCheckPath: /
+    autoDeploy: false
     envVars:
       - key: BOT_TOKEN
         sync: false
@@ -19,3 +21,9 @@ services:
         sync: false
       - key: BOT_USERNAME
         sync: false
+      - key: LHOST
+        sync: false
+      - key: LPORT
+        sync: false
+      - key: PORT
+        value: 10000
