@@ -11,7 +11,16 @@ import re
 # ========== CONFIG ==========
 LHOST = os.getenv("LHOST", "0.0.0.0").strip()
 LPORT = int(os.getenv("LPORT", "4444").strip())
-MSFVENOM_PATH = "/usr/local/bin/msfvenom"
+
+def find_msfvenom():
+    if shutil.which("msfvenom"):
+        return shutil.which("msfvenom")
+    for p in ["/usr/local/bin/msfvenom", "/opt/metasploit-framework/bin/msfvenom", "/usr/bin/msfvenom"]:
+        if os.path.exists(p):
+            return p
+    return None
+
+MSFVENOM_PATH = find_msfvenom()
 # ============================
 
 def log(m):
